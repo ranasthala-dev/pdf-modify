@@ -415,6 +415,27 @@
             position: relative;
             display: inline-block;
         }
+
+        .upload-container {
+            display: flex;
+        }
+
+        @media (max-width: 700px) {
+            .upload-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .preview {
+                width: 325px;
+                padding: 16px;
+            }
+
+        }
     </style>
 </head>
 
@@ -472,37 +493,33 @@
 
     <!-- pdf blocks -->
     <section class="home_section">
-        <!-- <button onclick="logSelections()" class="btn">Log Selections</button> -->
-
-        <div class="container">
-            <!-- <input type="file" id="file1" accept="application/pdf" /> -->
-
-            <div class="upload-btn1">
-                <input type="file" id="file1" accept="application/pdf" />
-                <label for="file1" class="round-upload" title="Upload PDF">+</label>
+        <div class="upload-container">
+            <div class="container">
+                <div class="upload-btn1">
+                    <input type="file" id="file1" accept="application/pdf" />
+                    <label for="file1" class="round-upload" title="Upload PDF">+</label>
+                </div>
+                <div class="preview" id="pdf-preview-1"></div>
             </div>
-            <div class="preview" id="pdf-preview-1"></div>
 
-            <div class="upload-btn2">
-                <input type="file" id="file2" accept="application/pdf" />
-                <label for="file2" class="round-upload" title="Upload PDF">+</label>
+            <div class="container">
+                <div class="upload-btn2">
+                    <input type="file" id="file2" accept="application/pdf" />
+                    <label for="file2" class="round-upload" title="Upload PDF">+</label>
+                </div>
+                <div class="preview" id="pdf-preview-2"></div>
             </div>
-            <div class="preview" id="pdf-preview-2"></div>
-
-            <!-- <input type="file" id="file2" accept="application/pdf" />
-            <div class="preview" id="pdf-preview-2"></div> -->
         </div>
-        <!-- 
-        <div class="controls">
-
-            <button onclick="logSelections()" class="btn">Log Selections</button>
-        </div> -->
-
     </section>
 
+    <!-- pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- pdf-lib CDN -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-    <!-- sidebar toggle  -->
+
     <script>
+        // sidebar toggle 
         let btn = document.querySelector("#btn");
         let sidebar = document.querySelector(".sidebar");
         let homeSection = document.querySelector(".home_section");
@@ -511,15 +528,9 @@
             sidebar.classList.toggle("active");
             homeSection.classList.toggle("active");
         });
-    </script>
 
-    <!-- pdf.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <!-- pdf-lib CDN -->
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-    <!-- merge -->
-    <script>
+        //  merge
         document.getElementById('merge-button').addEventListener('click', async function () {
             if (!uploadedFile1 || !uploadedFile2) {
                 alert('Please upload both files first.');
@@ -559,10 +570,8 @@
                 alert('PDF merge failed.');
             }
         });
-    </script>
 
-    <!-- Add at specfic page -->
-    <script>
+        // Add at specfic page
         document.getElementById('add-button').addEventListener('click', async function () {
 
             if (pdf1Selected[0] == undefined) {
@@ -625,50 +634,30 @@
             }
         });
 
-    </script>
 
-    <!-- Add at specfic page -->
-    <script>
+        //  Extract specfic page 
         document.getElementById('extract-button').addEventListener('click', async function () {
-            console.log('jiii');
-
-
             if (!uploadedFile1) {
                 alert('Please upload a PDF to extract from.');
                 return;
             }
 
-            const selected = document.getElementById('page-dropdown-3').value;
-            let extractIndices = [];
-
-            // Parse selected value into page indices
-            if (selected.includes('-')) {
-                const [start, end] = selected.split('-').map(Number);
-                extractIndices = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-            } else {
-                extractIndices = [parseInt(selected)];
+            const selected = pdf1Selected[0];
+            if (selected === undefined) {
+                alert('Please select at least one page.');
+                return;
             }
-            console.log(extractIndices);
-            console.log('jiii');
 
+            const extractIndices = [parseInt(selected)];
 
             try {
                 const pdfBytes = await uploadedFile1.arrayBuffer();
                 const sourcePdf = await PDFLib.PDFDocument.load(pdfBytes);
                 const outputPdf = await PDFLib.PDFDocument.create();
 
-                const standardWidth = 595.28;  // A4 width
-                const standardHeight = 841.89; // A4 height
-
                 for (let i of extractIndices) {
-                    const [embeddedPage] = await outputPdf.embedPages([sourcePdf.getPage(i)]);
-                    const newPage = outputPdf.addPage([standardWidth, standardHeight]);
-
-                    const { width, height } = embeddedPage.scale(1);
-                    const x = (standardWidth - width) / 2;
-                    const y = (standardHeight - height) / 2;
-
-                    newPage.drawPage(embeddedPage, { x, y });
+                    const [copiedPage] = await outputPdf.copyPages(sourcePdf, [i - 1]); // -1 because pages are 0-based in pdf-lib
+                    outputPdf.addPage(copiedPage);
                 }
 
                 const resultBytes = await outputPdf.save();
@@ -685,12 +674,8 @@
                 alert('PDF extraction failed.');
             }
         });
-    </script>
 
-
-    <!-- preview  -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script>
+        // <!-- preview  -->
         const file1Input = document.getElementById('file1');
         const file2Input = document.getElementById('file2');
         const preview1 = document.getElementById('pdf-preview-1');
@@ -698,15 +683,19 @@
 
         let pdf1Selected = [];
         let pdf2Selected = [];
+        let uploadedFile1 = null;
+        let uploadedFile2 = null;
 
         file1Input.addEventListener('change', () => {
             pdf1Selected = [];
-            renderPDF(file1Input.files[0], preview1, pdf1Selected, 'pdf1');
+            uploadedFile1 = file1Input.files[0]; // <-- Save file here
+            renderPDF(uploadedFile1, preview1, pdf1Selected, 'pdf1');
         });
 
         file2Input.addEventListener('change', () => {
             pdf2Selected = [];
-            renderPDF(file2Input.files[0], preview2, pdf2Selected, 'pdf2');
+            uploadedFile2 = file2Input.files[0]; // <-- Save file here
+            renderPDF(uploadedFile2, preview2, pdf2Selected, 'pdf2');
         });
 
         async function renderPDF(file, container, selectionArray, tag) {
