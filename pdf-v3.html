@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+
+    <title>Document</title>
+    <style>
+        /* layout */
+        html,
+        body {
+            /* display: flex; */
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F7F7;
+            font-family: "Roboto", sans-serif;
+            font-size: 16px;
+            color: #4d4e55;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        li,
+        ul,
+        a {
+            text-decoration: none;
+            padding: 0;
+            margin: 0;
+        }
+
+
+
+
+        .container {
+            display: flex;
+            padding: 10px;
+            height: 100%;
+            width: 100%;
+        }
+
+        .nav {
+            background-color: #F7F7F7;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            height: 100%;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: #FFFDFC;
+            border: 0.7px solid #ece8e8;
+            /* border: 0.7px solid rgb(5, 6, 45); */
+            border-radius: 10px;
+        }
+
+        .logo {
+            font-size: 20px;
+        }
+
+        .nav ul li {
+            padding-left: 25px;
+            padding-top: 20px;
+        }
+
+        .bx {
+            padding-right: 10px;
+        }
+
+        .methods {
+            padding: 5px;
+            text-align: left;
+            width: 100%;
+            color: #4d4e55;
+            border: none;
+            border: 0.7px solid transparent;
+            background-color: #F7F7F7;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .methods:hover {
+            background-color: #FFFDFC;
+            border: 0.7px solid #ece8e8;
+        }
+
+        /* From Uiverse.io by cssbuttons-io */
+        .methods {
+            align-items: center;
+            /* background-image: linear-gradient(144deg, #af40ff, #5b42f3 50%, #00ddeb); */
+            background-image: linear-gradient(144deg, #131213, #1e70db 50%, #150232);
+            border-radius: 8px;
+            box-shadow: rgba(149, 107, 197, 0.2) 0 15px 30px -5px;
+            box-sizing: border-box;
+            color: #ffffff;
+            display: flex;
+            /* font-size: 18px; */
+            justify-content: center;
+            /* line-height: 1em; */
+            max-width: 100%;
+            /* min-width: 140px; */
+            text-decoration: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .methods:active,
+        .methods:hover {
+            outline: 0;
+        }
+
+        .methods span {
+            background-color: rgb(5, 6, 45);
+            border-radius: 6px;
+            padding: 5px;
+            width: 100%;
+            height: 100%;
+            transition: 300ms;
+        }
+
+        .methods:hover span {
+            background: none;
+        }
+
+        .methods:active {
+            transform: scale(0.9);
+            /* Shrink shadow too */
+        }
+
+        /* end */
+
+        .git {
+            display: flex;
+            /* justify-content: center; */
+            align-items: center;
+            margin-top: auto;
+            height: 10%;
+            width: 100%;
+            background-color: #FFFDFC;
+            border: 0.7px solid #ece8e8;
+            /* border: 0.7px solid rgb(5, 6, 45); */
+
+            border-radius: 10px;
+            padding-left: 5px;
+        }
+
+        .pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            /* border: 1px solid rgb(5, 6, 45); */
+        }
+
+        .git-name {
+            padding-left: 6px;
+            color: rgb(5, 6, 45);
+            font-weight: bold;
+
+        }
+
+        /* main body */
+
+        /* nav bar */
+        .nav-bar {
+            display: flex;
+            width: 100%;
+            justify-content: flex-end;
+            /* Push content to right */
+            align-items: end;
+        }
+
+        .nav-list {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: flex-end;
+            list-style: none;
+            margin: 0;
+            padding: 10px 20px;
+            /* background-color: #1e70db; */
+            border-radius: 10px 10px 0 0;
+        }
+
+        .nav-button {
+            border: none;
+            color: rgb(5, 6, 45);
+            background-color: #FFFDFC;
+            font-weight: bold;
+            padding: 5px;
+            cursor: pointer;
+            /* transition: 0.3s; */
+
+        }
+
+        .nav-button:hover {
+            background-color: rgb(5, 6, 45);
+            color: #FFFDFC;
+            border-radius: 8px;
+        }
+
+
+        .nav-button :active,
+        .nav-button :hover {
+            outline: 0;
+        }
+
+        .nav-button:active {
+            transform: scale(0.9);
+        }
+
+
+        /* uploads */
+
+        /* vertical - preview */
+
+        .uploads-container {
+            height: 100%;
+            width: 100%;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .vertical-preview {
+            display: block;
+            /* default */
+        }
+
+
+        .vertical-preview {
+            height: 100%;
+            width: 100%;
+
+        }
+
+        .uploads {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .upload-box1 {
+            display: flex;
+            height: 100%;
+            padding-top: 25px;
+            padding-bottom: 50px;
+
+        }
+
+        .upload-box2 {
+            display: flex;
+            height: 100%;
+            padding-top: 25px;
+            padding-bottom: 50px;
+        }
+
+        #file1 {
+            display: none;
+        }
+
+        #file2 {
+            display: none;
+        }
+
+        .round-upload {
+            width: 40px;
+            height: 40px;
+            margin: 10px;
+            /* background: linear-gradient(135deg, #6a11cb, #00050e); */
+            background: linear-gradient(135deg, #1e70db, rgb(5, 6, 45));
+
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .round-upload:hover {
+            transform: scale(1.1);
+        }
+
+        .vertical-preview-box {
+            width: 400px;
+            padding: 16px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            /* border: 1px solid rgb(196, 192, 192); */
+            /* border: 1px solid rgb(196, 192, 192); */
+            border: 0.7px solid #ece8e8;
+            background-color: #f1f1f1;
+            border-radius: 7px;
+            height: 100%
+                /* border-right: 1px solid #ccc; */
+        }
+
+        /* notfication */
+        .notification {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            background-color: #323232;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 9999;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="nav">
+            <div class="logo">
+                <i class='bx bx-menu' id="btn"></i>
+                <span>PDF - Modify</span>
+            </div>
+
+            <ul>
+                <li><button class="methods"><span><i class='bx bx-merge'></i>Merge</span></button></li>
+                <li><button class="methods"> <span><i class='bx bx-plus'></i>Add</span></button></li>
+                <li><button class="methods"><span><i class='bx bx-cut'></i>Extract</span></button></li>
+                <li><button class="methods"> <span><i class='bx bx-trash'></i>Remove</span></button></li>
+                <li><button class="methods"><span><i class='bx bx-shuffle'></i>Shuffle</span></button></li>
+
+            </ul>
+            <div class="git">
+                <!-- <img class="pic" src="me.jpeg" alt="git" width="50px" height="50px"> -->
+                <img class="pic" src="user.png" alt="git" width="50px" height="50px">
+
+                <a href="" class="git-name">ranasthala-dev</a>
+            </div>
+
+        </div>
+        <div class="main-container">
+
+            <div class="main">
+                <div class="nav-bar">
+                    <ul class="nav-list">
+                        <li><button class="nav-button" id="nav-shuffle">go-shuffle</button></li>
+                        <li><button class="nav-button" id="nav-contact">contact</button></li>
+                        <li><button class="nav-button" id="nav-docs">docs</button></li>
+                    </ul>
+                </div>
+                <div class="uploads-container">
+                    <div class="view vertical-preview">
+                        <div class="uploads">
+                            <div class="upload-box1">
+                                <div class="upload-btn1">
+                                    <input type="file" id="file1" accept="application/pdf" />
+                                    <label for="file1" class="round-upload" title="Upload PDF">+</label>
+                                </div>
+                                <div class="vertical-preview-box" id="pdf-preview-1"></div>
+                            </div>
+                            <div class="upload-box2">
+                                <div class="upload-btn2">
+                                    <input type="file" id="file2" accept="application/pdf" />
+                                    <label for="file2" class="round-upload" title="Upload PDF">+</label>
+                                </div>
+                                <div class="vertical-preview-box" id="pdf-preview-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="view horiontal-preview">
+                        hii
+                    </div>
+                    <div class="view docs-view">
+                        docs
+                    </div>
+                    <div class="view contact-view">
+                        contact
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // toggle view -----------
+        const views = {
+            home: document.querySelector(".vertical-preview"),
+            shuffle: document.querySelector(".horiontal-preview"),
+            contact: document.querySelector(".contact-view"),
+            docs: document.querySelector(".docs-view")
+        };
+
+        const navBtn = document.getElementById("nav-shuffle");
+
+        function showView(viewKey) {
+            Object.values(views).forEach(v => v.style.display = "none");
+            views[viewKey].style.display = "block";
+
+            // Optional: change text on shuffle button
+            navBtn.textContent = viewKey === "home" ? "go-shuffle" : "home";
+        }
+
+        // Initial view
+        showView("home");
+
+        // Event listeners
+        navBtn.addEventListener("click", () => {
+            const isHome = views["home"].style.display === "block";
+            showView(isHome ? "shuffle" : "home");
+        });
+
+        document.getElementById("nav-contact").addEventListener("click", () => showView("contact"));
+        document.getElementById("nav-docs").addEventListener("click", () => showView("docs"));
+
+        // notify ---------
+        function showNotification(message, duration = 2000) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+
+            // Trigger animation
+            requestAnimationFrame(() => notif.classList.add('show'));
+
+            // Remove after duration
+            setTimeout(() => {
+                notif.classList.remove('show');
+                setTimeout(() => notif.remove(), 500); // wait for fade out
+            }, duration);
+        }
+    </script>
+</body>
+
+</html>
