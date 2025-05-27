@@ -352,6 +352,57 @@
         .notification.show {
             opacity: 1;
         }
+
+        canvas {
+            border: 1px solid #ccc;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .selected {
+            outline: 3px solid #007bff;
+        }
+
+        .selection-badge {
+            position: absolute;
+            background: #007bff;
+            color: white;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+            z-index: 10;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .docs-container {
+            display: flex;
+            /* justify-content: center; */
+            align-items: center;
+            flex-direction: column;
+        }
+
+
+
+        .docs-inner {
+            border: 0.7px solid #ece8e8;
+            /* background-color: #f1f1f1; */
+            background-color: #FFFDFC;
+
+            border-radius: 7px;
+            padding: 20px;
+            width: 80%;
+        }
+
+        .docs-box {
+            display: flex;
+
+        }
     </style>
 </head>
 
@@ -385,21 +436,20 @@
                 <div class="nav-bar">
                     <ul class="nav-list">
                         <li><button class="nav-button" id="nav-shuffle">go-shuffle</button></li>
-                        <li><button class="nav-button" id="nav-contact">contact</button></li>
                         <li><button class="nav-button" id="nav-docs">docs</button></li>
                     </ul>
                 </div>
                 <div class="uploads-container">
                     <div class="view vertical-preview">
                         <div class="uploads">
-                            <div class="upload-box1">
+                            <div class="upload-box1 upload-box">
                                 <div class="upload-btn1">
                                     <input type="file" id="file1" accept="application/pdf" />
                                     <label for="file1" class="round-upload" title="Upload PDF">+</label>
                                 </div>
                                 <div class="vertical-preview-box" id="pdf-preview-1"></div>
                             </div>
-                            <div class="upload-box2">
+                            <div class="upload-box2 upload-box">
                                 <div class="upload-btn2">
                                     <input type="file" id="file2" accept="application/pdf" />
                                     <label for="file2" class="round-upload" title="Upload PDF">+</label>
@@ -412,23 +462,43 @@
                         hii
                     </div>
                     <div class="view docs-view">
-                        docs
-                    </div>
-                    <div class="view contact-view">
-                        contact
+                        <div class="docs-container">
+                            <div class="docs-inner">
+                                <div><b>Merge</b></div><br>
+                                <div class="docs-box">
+                                    <div class="description">
+                                        Upload the PDFs in their respective slots — the second PDF will always
+                                        be
+                                        appended to the first.<br><br>
+
+                                        Selections will not affect the merge process. To maintain
+                                        simplicity and clarity in functionality, merging has been intentionally
+                                        designed to combine PDFs in a fixed order — with all appended content
+                                        added
+                                        at the end.<br><br>
+
+                                        This approach ensures consistent results and an intuitive experience.
+                                    </div>
+                                    <!-- <img src="image.png" class="docs-img" alt="" width="60%" height="100%"> -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- pdf-lib CDN -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
     <script>
         // toggle view -----------
         const views = {
             home: document.querySelector(".vertical-preview"),
             shuffle: document.querySelector(".horiontal-preview"),
-            contact: document.querySelector(".contact-view"),
             docs: document.querySelector(".docs-view")
         };
 
@@ -451,7 +521,6 @@
             showView(isHome ? "shuffle" : "home");
         });
 
-        document.getElementById("nav-contact").addEventListener("click", () => showView("contact"));
         document.getElementById("nav-docs").addEventListener("click", () => showView("docs"));
 
         // notify ---------
@@ -469,6 +538,91 @@
                 notif.classList.remove('show');
                 setTimeout(() => notif.remove(), 500); // wait for fade out
             }, duration);
+        }
+
+        // <!-- preview  -->
+        const file1Input = document.getElementById('file1');
+        const file2Input = document.getElementById('file2');
+        const preview1 = document.getElementById('pdf-preview-1');
+        const preview2 = document.getElementById('pdf-preview-2');
+
+        let pdf1Selected = [];
+        let pdf2Selected = [];
+        let uploadedFile1 = null;
+        let uploadedFile2 = null;
+
+        file1Input.addEventListener('change', () => {
+            pdf1Selected = [];
+            uploadedFile1 = file1Input.files[0]; // <-- Save file here
+            renderPDF(uploadedFile1, preview1, pdf1Selected, 'pdf1');
+        });
+
+        file2Input.addEventListener('change', () => {
+            pdf2Selected = [];
+            uploadedFile2 = file2Input.files[0]; // <-- Save file here
+            renderPDF(uploadedFile2, preview2, pdf2Selected, 'pdf2');
+        });
+        async function renderPDF(file, container, selectionArray, tag) {
+            container.innerHTML = '';
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 0.6 });
+                const canvas = document.createElement('canvas');
+                canvas.setAttribute('data-page', pageNum);
+                canvas.setAttribute('data-tag', tag);
+
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport }).promise;
+
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('canvas-wrapper');
+                wrapper.appendChild(canvas);
+                container.appendChild(wrapper);
+
+                canvas.addEventListener('click', () => {
+                    const pageId = parseInt(canvas.dataset.page);
+                    const list = tag === 'pdf1' ? pdf1Selected : pdf2Selected;
+
+                    const index = list.indexOf(pageId);
+                    if (index !== -1) {
+                        list.splice(index, 1);
+                        canvas.classList.remove('selected');
+                    } else {
+                        list.push(pageId);
+                        canvas.classList.add('selected');
+                    }
+
+                    updateBadges(container, list);
+                });
+            }
+        }
+        function updateBadges(container, list) {
+            const wrappers = container.querySelectorAll('.canvas-wrapper');
+            wrappers.forEach(wrapper => {
+                const badge = wrapper.querySelector('.selection-badge');
+                if (badge) badge.remove();
+
+                const canvas = wrapper.querySelector('canvas');
+                const pageId = parseInt(canvas.dataset.page);
+                const index = list.indexOf(pageId);
+                if (index !== -1) {
+                    const badge = document.createElement('div');
+                    badge.classList.add('selection-badge');
+                    badge.textContent = index + 1;
+                    wrapper.appendChild(badge);
+                }
+            });
+        }
+
+        function logSelections() {
+            console.log('pdf1:', pdf1Selected);
+            console.log('pdf2:', pdf2Selected);
         }
     </script>
 </body>
