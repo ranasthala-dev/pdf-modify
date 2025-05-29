@@ -70,6 +70,8 @@
             height: 100%;
             width: 100%;
             padding: 10px;
+            overflow: hidden;
+            /* Hide default scroll */
         }
 
         .main {
@@ -249,6 +251,7 @@
         .uploads-container {
             height: 100%;
             width: 100%;
+            overflow-y: auto;
         }
 
         .view {
@@ -298,6 +301,8 @@
             display: none;
         }
 
+
+
         .round-upload {
             width: 40px;
             height: 40px;
@@ -323,7 +328,7 @@
         .vertical-preview-box {
             width: 400px;
             padding: 16px;
-            overflow-y: scroll;
+            overflow-y: auto;
             overflow-x: hidden;
             /* border: 1px solid rgb(196, 192, 192); */
             /* border: 1px solid rgb(196, 192, 192); */
@@ -381,6 +386,7 @@
         }
 
 
+
         .docs-container {
             display: flex;
             /* justify-content: center; */
@@ -405,6 +411,103 @@
         .docs-box {
             display: flex;
         }
+
+
+
+        .horiontal-preview {
+            padding: 20px;
+        }
+
+
+        .horiontal-preview #file3 {
+            margin-bottom: 20px;
+        }
+
+        #file3 {
+            display: none;
+        }
+
+        .horiontal-preview .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 100px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            background: #fff;
+        }
+
+        /* #sortable {
+
+            padding: 20px;
+
+        } */
+
+        .horiontal-preview .page-box {
+            border: 2px solid #3B82F6;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            cursor: grab;
+            width: 120px;
+        }
+
+        .horiontal-preview .page-box.dragging {
+            opacity: 0.5;
+        }
+
+        .horiontal-preview canvas {
+            display: block;
+            width: 100%;
+        }
+
+        .horiontal-preview button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Add specific overflow handling for docs-view */
+        .docs-view {
+            overflow-y: auto;
+            /* Show scroll only when content overflows */
+            overflow-x: hidden;
+        }
+
+        .docs-view::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .docs-view::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .docs-view::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .docs-view::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Other views should not scroll */
+        .vertical-preview,
+        .horizontal-preview {
+            overflow: hidden;
+        }
+
+        /* Add styles for disabled button */
+        .methods:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -424,7 +527,8 @@
                 </li>
                 <li><button class="methods" id="remove-button"> <span><i class='bx bx-trash'></i>Remove</span></button>
                 </li>
-                <li><button class="methods"><span><i class='bx bx-shuffle'></i>Shuffle</span></button></li>
+                <li><button class="methods" id="shuffle-button" disabled><span><i
+                                class='bx bx-shuffle'></i>Shuffle</span></button></li>
 
             </ul>
             <div class="git">
@@ -465,7 +569,10 @@
                         </div>
                     </div>
                     <div class="view horiontal-preview">
-                        hii
+
+                        <label for="file3" class="round-upload" title="Upload PDF">+</label>
+                        <input type="file" id="file3" class="" name="file3" accept="application/pdf" />
+                        <div id="sortable" class="container"></div>
                     </div>
                     <div class="view docs-view">
                         <div class="docs-container">
@@ -542,6 +649,25 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="docs-container">
+                            <div class="docs-inner">
+                                <div><b>Shuffle</b></div><br>
+                                <div class="docs-box">
+                                    <div class="description">
+                                        Upload a PDF and arrange its pages in any order you want using drag and
+                                        drop.<br><br>
+
+                                        Click the upload button to upload your PDF. Once uploaded, you'll see all pages
+                                        displayed horizontally. Simply drag and drop the pages to arrange them in your
+                                        desired order.<br><br>
+
+                                        After arranging the pages, click the "Shuffle" button in the sidebar to download
+                                        the PDF with the new page order. This feature is perfect for reorganizing
+                                        documents or creating custom page sequences.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -562,9 +688,20 @@
             docs: document.querySelector(".docs-view")
         };
 
+        const shuffleButton = document.getElementById('shuffle-button');
+
         function showView(viewKey) {
             Object.values(views).forEach(v => v.style.display = "none");
             views[viewKey].style.display = "block";
+
+            // Enable/disable shuffle button based on view
+            if (viewKey === 'shuffle') {
+                shuffleButton.disabled = false;
+                shuffleButton.onclick = downloadShuffled;
+            } else {
+                shuffleButton.disabled = true;
+                shuffleButton.onclick = null;
+            }
         }
 
         document.getElementById("nav-shuffle").addEventListener("click", () => showView("shuffle"));
@@ -931,6 +1068,110 @@
         img.onerror = function () {
             document.getElementById('profile-pic').src = 'user.png';
         };
+    </script>
+
+    <!-- shuffle -->
+    <script>
+        const upload = document.getElementById('file3');
+        const sortable = document.getElementById('sortable');
+        let currentPdfFile = null;
+
+        upload.addEventListener('change', async (e) => {
+            currentPdfFile = e.target.files[0];
+            const buffer = await currentPdfFile.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+            sortable.innerHTML = '';
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 0.3 });
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                const box = document.createElement('div');
+                box.className = 'page-box';
+                box.draggable = true;
+                box.dataset.page = pageNum;
+                box.appendChild(canvas);
+
+                addDragEvents(box);
+                sortable.appendChild(box);
+            }
+        });
+
+        function addDragEvents(box) {
+            box.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', box.dataset.page);
+                box.classList.add('dragging');
+            });
+
+            box.addEventListener('dragend', () => {
+                box.classList.remove('dragging');
+            });
+
+            box.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            box.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggedPage = e.dataTransfer.getData('text/plain');
+                const draggedEl = document.querySelector(`[data-page="${draggedPage}"]`);
+
+                if (draggedEl !== box) {
+                    const allBoxes = Array.from(sortable.children);
+                    const dropIndex = allBoxes.indexOf(box);
+                    sortable.insertBefore(draggedEl, dropIndex > allBoxes.indexOf(draggedEl) ? box.nextSibling : box);
+                }
+            });
+        }
+
+        async function downloadShuffled() {
+            if (!currentPdfFile) {
+                showNotification('Please upload a PDF first');
+                return;
+            }
+
+            try {
+                // Get the new page order
+                const newOrder = Array.from(sortable.children).map(box => parseInt(box.dataset.page));
+
+                // Load the original PDF
+                const arrayBuffer = await currentPdfFile.arrayBuffer();
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+                // Create a new PDF
+                const newPdf = await PDFLib.PDFDocument.create();
+
+                // Copy pages in the new order
+                for (const pageNum of newOrder) {
+                    const [page] = await newPdf.copyPages(pdfDoc, [pageNum - 1]);
+                    newPdf.addPage(page);
+                }
+
+                // Save the new PDF
+                const shuffledPdfBytes = await newPdf.save();
+
+                // Create download link
+                const blob = new Blob([shuffledPdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'shuffled.pdf';
+                link.click();
+                URL.revokeObjectURL(url);
+
+                showNotification('PDF successfully shuffled!');
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error creating shuffled PDF');
+            }
+        }
     </script>
 </body>
 
