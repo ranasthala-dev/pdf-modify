@@ -380,12 +380,14 @@
             display: inline-block;
         }
 
+
         .docs-container {
             display: flex;
             /* justify-content: center; */
             align-items: center;
             flex-direction: column;
             padding-bottom: 10px;
+            width: 100%;
         }
 
 
@@ -402,7 +404,6 @@
 
         .docs-box {
             display: flex;
-
         }
     </style>
 </head>
@@ -416,10 +417,13 @@
             </div>
 
             <ul>
-                <li><button class="methods" id="merge-button"><span><i class='bx bx-merge'></i>Merge</span></button></li>
+                <li><button class="methods" id="merge-button"><span><i class='bx bx-merge'></i>Merge</span></button>
+                </li>
                 <li><button class="methods" id="add-button"> <span><i class='bx bx-plus'></i>Add</span></button></li>
-                <li><button class="methods" id="extract-button"><span><i class='bx bx-cut'></i>Extract</span></button></li>
-                <li><button class="methods" id="remove-button"> <span><i class='bx bx-trash'></i>Remove</span></button></li>
+                <li><button class="methods" id="extract-button"><span><i class='bx bx-cut'></i>Extract</span></button>
+                </li>
+                <li><button class="methods" id="remove-button"> <span><i class='bx bx-trash'></i>Remove</span></button>
+                </li>
                 <li><button class="methods"><span><i class='bx bx-shuffle'></i>Shuffle</span></button></li>
 
             </ul>
@@ -489,11 +493,15 @@
                                 <div><b>Add</b></div><br>
                                 <div class="docs-box">
                                     <div class="description">
-                                        Upload two PDFs in their respective slots. Select a page in the first PDF where you want to insert content.<br><br>
+                                        Upload two PDFs in their respective slots. Select a page in the first PDF where
+                                        you want to insert content.<br><br>
 
-                                        You can optionally select specific pages from the second PDF. If no pages are selected in the second PDF, all its pages will be used.<br><br>
+                                        You can optionally select specific pages from the second PDF. If no pages are
+                                        selected in the second PDF, all its pages will be used.<br><br>
 
-                                        The selected pages from the second PDF (or all pages if none selected) will be inserted after your chosen page in the first PDF, maintaining the order of the remaining pages.
+                                        The selected pages from the second PDF (or all pages if none selected) will be
+                                        inserted after your chosen page in the first PDF, maintaining the order of the
+                                        remaining pages.
                                     </div>
                                 </div>
                             </div>
@@ -503,11 +511,15 @@
                                 <div><b>Extract</b></div><br>
                                 <div class="docs-box">
                                     <div class="description">
-                                        Upload one or both PDFs in their respective slots. Select the pages you want to extract from either or both PDFs.<br><br>
+                                        Upload one or both PDFs in their respective slots. Select the pages you want to
+                                        extract from either or both PDFs.<br><br>
 
-                                        The selected pages will be combined into a new PDF in the order they were selected. You can select pages from both PDFs to create a single new document.<br><br>
+                                        The selected pages will be combined into a new PDF in the order they were
+                                        selected. You can select pages from both PDFs to create a single new
+                                        document.<br><br>
 
-                                        This feature is useful for creating custom PDFs by combining specific pages from multiple documents.
+                                        This feature is useful for creating custom PDFs by combining specific pages from
+                                        multiple documents.
                                     </div>
                                 </div>
                             </div>
@@ -517,11 +529,15 @@
                                 <div><b>Remove</b></div><br>
                                 <div class="docs-box">
                                     <div class="description">
-                                        Upload one or both PDFs in their respective slots. Select the pages you want to remove from either or both PDFs.<br><br>
+                                        Upload one or both PDFs in their respective slots. Select the pages you want to
+                                        remove from either or both PDFs.<br><br>
 
-                                        The selected pages will be excluded from the new PDF, while all other pages will be preserved in their original order. You can select pages from both PDFs to remove them from the final document.<br><br>
+                                        The selected pages will be excluded from the new PDF, while all other pages will
+                                        be preserved in their original order. You can select pages from both PDFs to
+                                        remove them from the final document.<br><br>
 
-                                        This feature is useful for cleaning up documents by removing unwanted pages while maintaining the structure of the remaining content.
+                                        This feature is useful for cleaning up documents by removing unwanted pages
+                                        while maintaining the structure of the remaining content.
                                     </div>
                                 </div>
                             </div>
@@ -675,21 +691,21 @@
 
             try {
                 const newPdf = await PDFLib.PDFDocument.create();
-                
+
                 // Process first PDF if uploaded
                 if (uploadedFile1) {
                     const pdf1Bytes = await uploadedFile1.arrayBuffer();
                     const pdf1Doc = await PDFLib.PDFDocument.load(pdf1Bytes);
-                    
+
                     // Get all pages except selected ones
                     const pagesToKeep = Array.from(
-                        {length: pdf1Doc.getPageCount()}, 
+                        { length: pdf1Doc.getPageCount() },
                         (_, i) => i + 1
                     ).filter(pageNum => !pdf1Selected.includes(pageNum));
 
                     // Copy non-selected pages from first PDF
                     if (pagesToKeep.length > 0) {
-                        const pdf1Pages = await newPdf.copyPages(pdf1Doc, 
+                        const pdf1Pages = await newPdf.copyPages(pdf1Doc,
                             pagesToKeep.map(pageNum => pageNum - 1));
                         pdf1Pages.forEach(page => newPdf.addPage(page));
                     }
@@ -699,16 +715,16 @@
                 if (uploadedFile2) {
                     const pdf2Bytes = await uploadedFile2.arrayBuffer();
                     const pdf2Doc = await PDFLib.PDFDocument.load(pdf2Bytes);
-                    
+
                     // Get all pages except selected ones
                     const pagesToKeep = Array.from(
-                        {length: pdf2Doc.getPageCount()}, 
+                        { length: pdf2Doc.getPageCount() },
                         (_, i) => i + 1
                     ).filter(pageNum => !pdf2Selected.includes(pageNum));
 
                     // Copy non-selected pages from second PDF
                     if (pagesToKeep.length > 0) {
-                        const pdf2Pages = await newPdf.copyPages(pdf2Doc, 
+                        const pdf2Pages = await newPdf.copyPages(pdf2Doc,
                             pagesToKeep.map(pageNum => pageNum - 1));
                         pdf2Pages.forEach(page => newPdf.addPage(page));
                     }
@@ -716,7 +732,7 @@
 
                 // Save the new PDF
                 const removedPdfBytes = await newPdf.save();
-                
+
                 // Create a download link
                 const blob = new Blob([removedPdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
@@ -750,14 +766,14 @@
 
             try {
                 const newPdf = await PDFLib.PDFDocument.create();
-                
+
                 // Process first PDF if uploaded and has selected pages
                 if (uploadedFile1 && pdf1Selected.length > 0) {
                     const pdf1Bytes = await uploadedFile1.arrayBuffer();
                     const pdf1Doc = await PDFLib.PDFDocument.load(pdf1Bytes);
-                    
+
                     // Copy selected pages from first PDF
-                    const pdf1Pages = await newPdf.copyPages(pdf1Doc, 
+                    const pdf1Pages = await newPdf.copyPages(pdf1Doc,
                         pdf1Selected.map(pageNum => pageNum - 1));
                     pdf1Pages.forEach(page => newPdf.addPage(page));
                 }
@@ -766,16 +782,16 @@
                 if (uploadedFile2 && pdf2Selected.length > 0) {
                     const pdf2Bytes = await uploadedFile2.arrayBuffer();
                     const pdf2Doc = await PDFLib.PDFDocument.load(pdf2Bytes);
-                    
+
                     // Copy selected pages from second PDF
-                    const pdf2Pages = await newPdf.copyPages(pdf2Doc, 
+                    const pdf2Pages = await newPdf.copyPages(pdf2Doc,
                         pdf2Selected.map(pageNum => pageNum - 1));
                     pdf2Pages.forEach(page => newPdf.addPage(page));
                 }
 
                 // Save the new PDF
                 const extractedPdfBytes = await newPdf.save();
-                
+
                 // Create a download link
                 const blob = new Blob([extractedPdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
@@ -803,7 +819,7 @@
                 // Load both PDFs
                 const pdf1Bytes = await uploadedFile1.arrayBuffer();
                 const pdf2Bytes = await uploadedFile2.arrayBuffer();
-                
+
                 const pdf1Doc = await PDFLib.PDFDocument.load(pdf1Bytes);
                 const pdf2Doc = await PDFLib.PDFDocument.load(pdf2Bytes);
 
@@ -811,18 +827,18 @@
                 const newPdf = await PDFLib.PDFDocument.create();
 
                 // Copy all pages from first PDF
-                const pdf1Pages = await newPdf.copyPages(pdf1Doc, 
-                    Array.from({length: pdf1Doc.getPageCount()}, (_, i) => i));
+                const pdf1Pages = await newPdf.copyPages(pdf1Doc,
+                    Array.from({ length: pdf1Doc.getPageCount() }, (_, i) => i));
                 pdf1Pages.forEach(page => newPdf.addPage(page));
 
                 // Copy all pages from second PDF
-                const pdf2Pages = await newPdf.copyPages(pdf2Doc, 
-                    Array.from({length: pdf2Doc.getPageCount()}, (_, i) => i));
+                const pdf2Pages = await newPdf.copyPages(pdf2Doc,
+                    Array.from({ length: pdf2Doc.getPageCount() }, (_, i) => i));
                 pdf2Pages.forEach(page => newPdf.addPage(page));
 
                 // Save the new PDF
                 const mergedPdfBytes = await newPdf.save();
-                
+
                 // Create a download link
                 const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
@@ -855,7 +871,7 @@
                 // Load both PDFs
                 const pdf1Bytes = await uploadedFile1.arrayBuffer();
                 const pdf2Bytes = await uploadedFile2.arrayBuffer();
-                
+
                 const pdf1Doc = await PDFLib.PDFDocument.load(pdf1Bytes);
                 const pdf2Doc = await PDFLib.PDFDocument.load(pdf2Bytes);
 
@@ -870,7 +886,7 @@
                 }
 
                 // Add selected pages from second PDF or all pages if none selected
-                const pagesToAdd = pdf2Selected.length > 0 ? pdf2Selected : Array.from({length: pdf2Doc.getPageCount()}, (_, i) => i + 1);
+                const pagesToAdd = pdf2Selected.length > 0 ? pdf2Selected : Array.from({ length: pdf2Doc.getPageCount() }, (_, i) => i + 1);
                 for (const pageNum of pagesToAdd) {
                     const [page] = await newPdf.copyPages(pdf2Doc, [pageNum - 1]);
                     newPdf.addPage(page);
@@ -884,7 +900,7 @@
 
                 // Save the new PDF
                 const mergedPdfBytes = await newPdf.save();
-                
+
                 // Create a download link
                 const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
