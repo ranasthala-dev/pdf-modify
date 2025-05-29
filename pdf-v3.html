@@ -419,7 +419,7 @@
                 <li><button class="methods" id="merge-button"><span><i class='bx bx-merge'></i>Merge</span></button></li>
                 <li><button class="methods" id="add-button"> <span><i class='bx bx-plus'></i>Add</span></button></li>
                 <li><button class="methods" id="extract-button"><span><i class='bx bx-cut'></i>Extract</span></button></li>
-                <li><button class="methods"> <span><i class='bx bx-trash'></i>Remove</span></button></li>
+                <li><button class="methods" id="remove-button"> <span><i class='bx bx-trash'></i>Remove</span></button></li>
                 <li><button class="methods"><span><i class='bx bx-shuffle'></i>Shuffle</span></button></li>
 
             </ul>
@@ -508,6 +508,20 @@
                                         The selected pages will be combined into a new PDF in the order they were selected. You can select pages from both PDFs to create a single new document.<br><br>
 
                                         This feature is useful for creating custom PDFs by combining specific pages from multiple documents.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="docs-container">
+                            <div class="docs-inner">
+                                <div><b>Remove</b></div><br>
+                                <div class="docs-box">
+                                    <div class="description">
+                                        Upload one or both PDFs in their respective slots. Select the pages you want to remove from either or both PDFs.<br><br>
+
+                                        The selected pages will be excluded from the new PDF, while all other pages will be preserved in their original order. You can select pages from both PDFs to remove them from the final document.<br><br>
+
+                                        This feature is useful for cleaning up documents by removing unwanted pages while maintaining the structure of the remaining content.
                                     </div>
                                 </div>
                             </div>
@@ -643,6 +657,81 @@
             console.log('pdf1:', pdf1Selected);
             console.log('pdf2:', pdf2Selected);
         }
+
+        // Remove button functionality
+        document.getElementById('remove-button').addEventListener('click', async () => {
+            // Check if at least one PDF is uploaded
+            if (!uploadedFile1 && !uploadedFile2) {
+                showNotification('Please upload at least one PDF');
+                return;
+            }
+
+            // Get selected pages from both PDFs
+            const selectedPages = [...pdf1Selected, ...pdf2Selected];
+            if (selectedPages.length === 0) {
+                showNotification('Please select at least one page to remove');
+                return;
+            }
+
+            try {
+                const newPdf = await PDFLib.PDFDocument.create();
+                
+                // Process first PDF if uploaded
+                if (uploadedFile1) {
+                    const pdf1Bytes = await uploadedFile1.arrayBuffer();
+                    const pdf1Doc = await PDFLib.PDFDocument.load(pdf1Bytes);
+                    
+                    // Get all pages except selected ones
+                    const pagesToKeep = Array.from(
+                        {length: pdf1Doc.getPageCount()}, 
+                        (_, i) => i + 1
+                    ).filter(pageNum => !pdf1Selected.includes(pageNum));
+
+                    // Copy non-selected pages from first PDF
+                    if (pagesToKeep.length > 0) {
+                        const pdf1Pages = await newPdf.copyPages(pdf1Doc, 
+                            pagesToKeep.map(pageNum => pageNum - 1));
+                        pdf1Pages.forEach(page => newPdf.addPage(page));
+                    }
+                }
+
+                // Process second PDF if uploaded
+                if (uploadedFile2) {
+                    const pdf2Bytes = await uploadedFile2.arrayBuffer();
+                    const pdf2Doc = await PDFLib.PDFDocument.load(pdf2Bytes);
+                    
+                    // Get all pages except selected ones
+                    const pagesToKeep = Array.from(
+                        {length: pdf2Doc.getPageCount()}, 
+                        (_, i) => i + 1
+                    ).filter(pageNum => !pdf2Selected.includes(pageNum));
+
+                    // Copy non-selected pages from second PDF
+                    if (pagesToKeep.length > 0) {
+                        const pdf2Pages = await newPdf.copyPages(pdf2Doc, 
+                            pagesToKeep.map(pageNum => pageNum - 1));
+                        pdf2Pages.forEach(page => newPdf.addPage(page));
+                    }
+                }
+
+                // Save the new PDF
+                const removedPdfBytes = await newPdf.save();
+                
+                // Create a download link
+                const blob = new Blob([removedPdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'removed.pdf';
+                link.click();
+                URL.revokeObjectURL(url);
+
+                showNotification('Pages successfully removed!');
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error removing pages');
+            }
+        });
 
         // Extract button functionality
         document.getElementById('extract-button').addEventListener('click', async () => {
