@@ -70,7 +70,7 @@
             height: 100%;
             width: 100%;
             padding: 10px;
-            overflow: hidden;
+            /* overflow: hidden; */
             /* Hide default scroll */
         }
 
@@ -270,6 +270,12 @@
 
         }
 
+        .words-preview {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
         .uploads {
             display: flex;
             justify-content: center;
@@ -301,6 +307,9 @@
             display: none;
         }
 
+        #file4 {
+            display: none;
+        }
 
 
         .round-upload {
@@ -337,6 +346,18 @@
             border-radius: 7px;
             height: 100%
                 /* border-right: 1px solid #ccc; */
+        }
+
+        .words-preview-box {
+            width: 400px;
+            padding: 16px;
+            overflow-y: auto;
+            /* overflow-x: hidden; */
+            border: 0.7px solid #ece8e8;
+            background-color: #f1f1f1;
+            border-radius: 7px;
+            height: 100%;
+            position: relative;
         }
 
         /* notfication */
@@ -524,6 +545,8 @@
                 </li>
                 <li><button class="methods" id="shuffle-button" disabled><span><i
                                 class='bx bx-shuffle'></i>Shuffle</span></button></li>
+                <li><button class="methods" id="add-words-button" disabled><span><i class='bx bx-shuffle'></i>Add
+                            Words</span></button></li>
 
             </ul>
             <div class="git">
@@ -541,6 +564,7 @@
                     <ul class="nav-list">
                         <li><button class="nav-button" id="nav-home">Home</button></li>
                         <li><button class="nav-button" id="nav-shuffle">Go-Shuffle</button></li>
+                        <li><button class="nav-button" id="nav-words">Go-Words</button></li>
                         <li><button class="nav-button" id="nav-docs">Docs</button></li>
                     </ul>
                 </div>
@@ -568,6 +592,17 @@
                         <label for="file3" class="round-upload" title="Upload PDF">+</label>
                         <input type="file" id="file3" class="" name="file3" accept="application/pdf" />
                         <div id="sortable" class="container"></div>
+                    </div>
+                    <div class="view words-preview">
+                        <div class="uploads">
+                            <div class="upload-box1 upload-box">
+                                <div class="upload-btn3">
+                                    <input type="file" id="file4" accept="application/pdf" />
+                                    <label for="file4" class="round-upload" title="Upload PDF">+</label>
+                                </div>
+                                <div class="words-preview-box" id="pdf-preview-4"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="view docs-view">
                         <div class="docs-container">
@@ -676,14 +711,21 @@
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
     <script>
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         // toggle view -----------
         const views = {
             home: document.querySelector(".vertical-preview"),
             shuffle: document.querySelector(".horiontal-preview"),
-            docs: document.querySelector(".docs-view")
+            docs: document.querySelector(".docs-view"),
+            words: document.querySelector(".words-preview")
+
         };
 
         const shuffleButton = document.getElementById('shuffle-button');
+        const wordsButton = document.getElementById('add-words-button');
+
 
         function showView(viewKey) {
             Object.values(views).forEach(v => v.style.display = "none");
@@ -693,13 +735,21 @@
             if (viewKey === 'shuffle') {
                 shuffleButton.disabled = false;
                 shuffleButton.onclick = downloadShuffled;
+            } else if (viewKey === 'words') {
+                shuffleButton.disabled = true;
+                shuffleButton.onclick = null;
+                wordsButton.disabled = false;
+                wordsButton.onclick = downloadShuffled;
             } else {
                 shuffleButton.disabled = true;
                 shuffleButton.onclick = null;
+                wordsButton.disabled = true;
+                wordsButton.onclick = null;
             }
         }
 
         document.getElementById("nav-shuffle").addEventListener("click", () => showView("shuffle"));
+        document.getElementById("nav-words").addEventListener("click", () => showView("words"));
         document.getElementById("nav-docs").addEventListener("click", () => showView("docs"));
         document.getElementById("nav-home").addEventListener("click", () => showView("home"));
 
@@ -724,13 +774,16 @@
         // <!-- preview  -->
         const file1Input = document.getElementById('file1');
         const file2Input = document.getElementById('file2');
+        const file4Input = document.getElementById('file4');
         const preview1 = document.getElementById('pdf-preview-1');
         const preview2 = document.getElementById('pdf-preview-2');
+        const preview4 = document.getElementById('pdf-preview-4');
 
         let pdf1Selected = [];
         let pdf2Selected = [];
         let uploadedFile1 = null;
         let uploadedFile2 = null;
+        let uploadedFile4 = null;
 
         file1Input.addEventListener('change', () => {
             pdf1Selected = [];
@@ -783,6 +836,7 @@
                 });
             }
         }
+
         function updateBadges(container, list) {
             const wrappers = container.querySelectorAll('.canvas-wrapper');
             wrappers.forEach(wrapper => {
@@ -800,6 +854,7 @@
                 }
             });
         }
+
 
         function logSelections() {
             console.log('pdf1:', pdf1Selected);
