@@ -437,11 +437,6 @@
             background: #fff;
         }
 
-        /* #sortable {
-
-            padding: 20px;
-
-        } */
 
         .horiontal-preview .page-box {
             border: 2px solid #3B82F6;
@@ -516,7 +511,7 @@
         <div class="nav">
             <div class="logo">
                 <i class='bx bx-menu' id="btn"></i>
-                <span>PDF - Modify</span>
+                <span><b>PDF - Modify</b></span>
             </div>
 
             <ul>
@@ -1053,11 +1048,9 @@
                 showNotification('Error creating PDF');
             }
         });
-    </script>
 
 
-    <!-- profile pic -->
-    <script>
+        // profile pic
         const img = new Image();
         img.src = 'me.jpeg';
 
@@ -1068,10 +1061,8 @@
         img.onerror = function () {
             document.getElementById('profile-pic').src = 'user.png';
         };
-    </script>
 
-    <!-- shuffle -->
-    <script>
+        // shuffle
         const upload = document.getElementById('file3');
         const sortable = document.getElementById('sortable');
         let currentPdfFile = null;
@@ -1091,8 +1082,9 @@
                 const ctx = canvas.getContext('2d');
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
-                await page.render({ canvasContext: ctx, viewport }).promise;
-
+                await page.render({
+                    canvasContext: ctx, viewport
+                }).promise;
                 const box = document.createElement('div');
                 box.className = 'page-box';
                 box.draggable = true;
